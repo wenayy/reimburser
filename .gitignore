@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local mock database
+/data
+.envfile
+
+
+# local claude-code permissions — machine-specific
+.claude/settings.local.json
