@@ -1,5 +1,6 @@
 "use server";
 
+import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
 import { clientIp, hashIp } from "@/lib/request";
 import {
@@ -130,10 +131,11 @@ export async function updateExpense(formData: FormData) {
 
   let oldImage: string | undefined;
   await updateOwnedExpense(id, creator.id, (e) => {
-    // auto-captured expenses reflect a real transaction — merchant and amount
-    // are immutable; the story around them (description, photo, link) can change
+    // auto-captured expenses reflect a real transaction — the AMOUNT is the
+    // verified fact and stays immutable; the merchant name is only the
+    // parser's guess, so the creator may correct it
+    if (merchant) e.merchant = merchant;
     if (e.source !== "auto") {
-      if (merchant) e.merchant = merchant;
       if (Number.isFinite(amount) && amount > 0) e.amount = amount;
     }
     e.customDescription = description || undefined;
@@ -386,7 +388,7 @@ export async function clearBlockedIps() {
 const RESERVED_USERNAMES = [
   "dashboard", "login", "signup", "onboarding", "help", "api", "icons",
   "admin", "uploads", "manifest", "favicon", "robots", "sitemap",
-  "terms", "privacy", "refunds", "contact", "settings", "about", "support", "demo", "faq",
+  "terms", "privacy", "refunds", "contact", "connect", "settings", "about", "support", "demo", "faq",
 ];
 
 export type UsernameResult = { ok: boolean; error?: string };
@@ -409,6 +411,19 @@ export async function updateUsername(formData: FormData): Promise<UsernameResult
   }
   revalidateAll();
   return { ok: true };
+}
+
+/** Issues (or reuses) this creator's capture device key for the phone app to
+ *  pick up via the reimburser://pair deep link. */
+export async function generateDeviceKey(): Promise<string> {
+  const creator = await requireCreator();
+  const key = creator.deviceKey ?? `dev_${randomBytes(24).toString("hex")}`;
+  if (!creator.deviceKey) {
+    await updateCreator(creator.id, (c) => {
+      c.deviceKey = key;
+    });
+  }
+  return key;
 }
 
 export async function updateProfile(formData: FormData) {

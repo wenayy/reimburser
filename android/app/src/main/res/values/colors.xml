@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="indigo">#6366F1</color>
+    <color name="violet">#8B5CF6</color>
+    <color name="heart">#6D5CF6</color>
+    <color name="ink">#18181B</color>
+    <color name="paper">#FAFAFA</color>
+    <color name="zinc400">#A1A1AA</color>
+    <color name="zinc200">#E4E4E7</color>
+    <color name="emerald">#059669</color>
+    <color name="emerald_bg">#ECFDF5</color>
+    <color name="zinc100">#F4F4F5</color>
+    <color name="ic_launcher_background">#FAFAFA</color>
+</resources>

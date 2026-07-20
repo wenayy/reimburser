@@ -545,8 +545,8 @@ function EditExpenseModal({ expense, onClose }: { expense: Expense; onClose: () 
       <div className="px-6 py-5 space-y-4">
         {locked && (
           <p className="rounded-lg bg-indigo-50/60 border border-indigo-100 px-3 py-2 text-xs leading-relaxed text-indigo-900/80">
-            Detected from a real transaction — the merchant and amount can&apos;t be changed.
-            You can still edit the description, or hide/delete the expense.
+            Detected from a real transaction — the amount can&apos;t be changed. Everything
+            else (name, description, photo, link) is yours to edit.
           </p>
         )}
         <div>
@@ -554,8 +554,7 @@ function EditExpenseModal({ expense, onClose }: { expense: Expense; onClose: () 
           <input
             value={merchant}
             onChange={(e) => setMerchant(e.target.value)}
-            disabled={locked}
-            className={`mt-1.5 ${inputCls} disabled:bg-zinc-50 disabled:text-zinc-400`}
+            className={`mt-1.5 ${inputCls}`}
           />
         </div>
         <div>

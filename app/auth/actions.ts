@@ -14,7 +14,7 @@ export type AuthState = { error: string };
 const RESERVED_USERNAMES = new Set([
   "dashboard", "login", "signup", "onboarding", "uploads", "api", "admin",
   "settings", "about", "help", "support", "terms", "privacy", "demo", "faq",
-  "refunds", "contact", "icons", "manifest",
+  "refunds", "contact", "connect", "icons", "manifest",
 ]);
 
 export async function logout() {

@@ -22,7 +22,15 @@ const EMOJIS = ["🧑‍💻", "🎨", "📸", "🎬", "✍️", "🎙️", "�
 const inputCls =
   "w-full rounded-xl border border-zinc-200 px-3.5 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400";
 
-export function SettingsPanel({ creator }: { creator: Creator }) {
+export function SettingsPanel({
+  creator,
+  phoneConnected = false,
+  showAutoCapture = false,
+}: {
+  creator: Creator;
+  phoneConnected?: boolean;
+  showAutoCapture?: boolean;
+}) {
   const [copied, setCopied] = useState(false);
   const [pending, startTransition] = useTransition();
 
@@ -70,6 +78,35 @@ export function SettingsPanel({ creator }: { creator: Creator }) {
       </Card>
 
       <InstallAppCard />
+
+      {/* Auto-capture — needs the native app; hidden until it's on the Play Store */}
+      {showAutoCapture && (
+      <Card className="p-5 sm:p-6">
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-semibold text-zinc-900">Auto-capture your expenses</h2>
+          {phoneConnected && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
+              ✓ Connected
+            </span>
+          )}
+        </div>
+        <p className="mt-1 text-xs text-zinc-400 leading-relaxed">
+          {phoneConnected
+            ? "Auto-capture is on. Your bank payment alerts turn into expense drafts automatically — review and publish them anytime. Set up a new phone? Reconnect it below."
+            : "Using the Reimburser Android app? Connect your phone once, and your bank payment alerts become expense drafts automatically — you just review and publish."}
+        </p>
+        <a
+          href="/connect"
+          className={`mt-3 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${
+            phoneConnected
+              ? "border border-zinc-200 text-zinc-700 hover:bg-zinc-50"
+              : "bg-zinc-900 text-white hover:bg-zinc-800"
+          }`}
+        >
+          {phoneConnected ? "Reconnect this phone" : "Connect this phone"}
+        </a>
+      </Card>
+      )}
 
       <ProfileCard creator={creator} />
 

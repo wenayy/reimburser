@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { listExpenses, listReimbursements } from "@/lib/store";
 import { requireOnboarded } from "@/lib/auth";
-import { inr, timeAgo } from "@/lib/format";
-import { Card, StatusBadge } from "@/components/ui";
+import { inr } from "@/lib/format";
+import { Card } from "@/components/ui";
 import { MonthChart } from "@/components/dashboard/MonthChart";
 import { HelpCard } from "@/components/dashboard/HelpCard";
-import { PAYMENT_META } from "@/lib/payments";
 
 export const dynamic = "force-dynamic";
 
@@ -59,7 +58,20 @@ export default async function Overview() {
     months.push({ label, spent, reimbursed });
   }
 
-  const recent = reimbursements.slice(0, 6);
+  // Top supporters — all-time, ranked by verified total (named supporters only)
+  const bySupporter = new Map<string, { total: number; count: number }>();
+  for (const r of verified) {
+    if (r.supporterName === "Anonymous") continue;
+    const cur = bySupporter.get(r.supporterName) ?? { total: 0, count: 0 };
+    cur.total += r.amount;
+    cur.count += 1;
+    bySupporter.set(r.supporterName, cur);
+  }
+  const topSupporters = [...bySupporter.entries()]
+    .map(([name, v]) => ({ name, ...v }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 3);
+  const medals = ["🥇", "🥈", "🥉"];
 
   const stats = [
     { label: "Today's expenses", value: inr(todaysTotal) },
@@ -110,34 +122,31 @@ export default async function Overview() {
 
       <Card className="p-5 sm:p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-zinc-900">Recent support</h2>
+          <h2 className="text-sm font-semibold text-zinc-900">Top supporters</h2>
           <Link href="/dashboard/support" className="text-xs font-medium text-indigo-600 hover:text-indigo-800">
             View all →
           </Link>
         </div>
         <div className="mt-4 divide-y divide-zinc-100">
-          {recent.length === 0 && (
-            <p className="py-6 text-center text-sm text-zinc-400">No support received yet.</p>
+          {topSupporters.length === 0 && (
+            <p className="py-6 text-center text-sm text-zinc-400">
+              No verified support yet — your biggest fans will show up here. 🏆
+            </p>
           )}
-          {recent.map((r) => {
-            const e = expenses.find((x) => x.id === r.expenseId);
-            return (
-              <div key={r.id} className="flex items-center gap-3 py-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 text-sm">
-                  {PAYMENT_META[r.methodType].emoji}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm text-zinc-900 truncate">
-                    <span className="font-medium">{r.supporterName}</span>
-                    <span className="text-zinc-400"> · {e?.merchant ?? "deleted expense"}</span>
-                  </div>
-                  <div className="text-xs text-zinc-400">{timeAgo(r.createdAt)}</div>
-                </div>
-                <span className="text-sm font-semibold tabular-nums text-zinc-900">{inr(r.amount)}</span>
-                <StatusBadge status={r.status} />
+          {topSupporters.map((s, i) => (
+            <div key={s.name} className="flex items-center gap-3 py-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 text-lg">
+                {medals[i]}
               </div>
-            );
-          })}
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-zinc-900 truncate">{s.name}</div>
+                <div className="text-xs text-zinc-400">
+                  {s.count} {s.count === 1 ? "contribution" : "contributions"}
+                </div>
+              </div>
+              <span className="text-sm font-semibold tabular-nums text-emerald-600">{inr(s.total)}</span>
+            </div>
+          ))}
         </div>
       </Card>
 

@@ -42,6 +42,13 @@ export async function getCreatorByDeviceKey(key: string): Promise<Creator | null
   return (rows[0]?.data as Creator) ?? null;
 }
 
+export async function getCreatorByMobileToken(token: string): Promise<Creator | null> {
+  const rows = await sql()`
+    SELECT data FROM creators
+    WHERE data->'mobileTokens' @> ${JSON.stringify([token])}::jsonb`;
+  return (rows[0]?.data as Creator) ?? null;
+}
+
 export async function listCreators(): Promise<Creator[]> {
   const rows = await sql()`SELECT data FROM creators ORDER BY id DESC`;
   return rows.map((r) => r.data as Creator);

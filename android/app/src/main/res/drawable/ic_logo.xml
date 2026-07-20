@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Reimburser mark (receipt + heart + progress arc), ported from
+     components/Logo.tsx — keep both in sync if the brand ever changes. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+
+    <!-- progress arc with gap at the bottom -->
+    <path
+        android:pathData="M19.3,54.8 A27,27 0 1 1 44.7,54.8"
+        android:strokeColor="@color/violet"
+        android:strokeWidth="5"
+        android:strokeLineCap="round" />
+
+    <!-- receipt with folded corner and torn bottom -->
+    <path
+        android:pathData="M23,15h12l7,7v25l-3.2,-2.7L35.6,47l-3.2,-2.7L29.2,47 26,44.3 23,47V15Z"
+        android:strokeColor="@color/ink"
+        android:strokeWidth="3"
+        android:strokeLineJoin="round"
+        android:fillColor="@color/paper" />
+    <path
+        android:pathData="M35,15v7h7"
+        android:strokeColor="@color/ink"
+        android:strokeWidth="3"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M28,26h8M28,31h10M28,36h4"
+        android:strokeColor="@color/ink"
+        android:strokeWidth="3"
+        android:strokeLineCap="round" />
+
+    <!-- heart -->
+    <path
+        android:pathData="M39.5,33.6c1.5,-1.5 3.9,-1.5 5.4,0 0.3,0.3 0.8,0.3 1.1,0 1.5,-1.5 3.9,-1.5 5.4,0s1.5,3.9 0,5.4l-5.2,5.2c-0.5,0.5 -1.2,0.5 -1.7,0l-5,-5.2c-1.5,-1.5 -1.5,-3.9 0,-5.4Z"
+        android:fillColor="@color/heart" />
+</vector>

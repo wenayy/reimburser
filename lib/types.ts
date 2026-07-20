@@ -82,6 +82,8 @@ export interface Creator {
   blockedIps?: string[];
   /** secret for the companion app's expense-capture API (auto-import) */
   deviceKey?: string;
+  /** opaque session tokens issued to the native app after Google login */
+  mobileTokens?: string[];
   paymentMethods: PaymentMethod[];
   preferences: {
     autoImport: boolean;

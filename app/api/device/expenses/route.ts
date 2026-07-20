@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { getCreatorByDeviceKey, saveExpense, uid } from "@/lib/store";
+import { getCreatorByDeviceKey, getCreatorByMobileToken, saveExpense, uid } from "@/lib/store";
 import { resolveMerchant } from "@/lib/merchants";
+import { parseBankAlert } from "@/lib/bank-alert";
 import { generateDescription } from "@/lib/ai";
 import { Expense } from "@/lib/types";
 
@@ -16,7 +17,11 @@ export async function POST(req: Request) {
   const key = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
   if (key.length < 20) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const creator = await getCreatorByDeviceKey(key);
+  // the native app authenticates with its login token (mob_…); the legacy
+  // companion utility uses a device key — accept either
+  const creator = key.startsWith("mob_")
+    ? await getCreatorByMobileToken(key)
+    : await getCreatorByDeviceKey(key);
   if (!creator) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   if (!creator.preferences.autoImport)
     return NextResponse.json({ error: "auto-import disabled" }, { status: 403 });
@@ -36,22 +41,34 @@ export async function POST(req: Request) {
   const parsedDate = body.date ? new Date(String(body.date)) : new Date();
   const date = Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
 
-  const info = resolveMerchant(rawText);
+  // clean the alert into human-readable form: payee + source, no refs/noise
+  const alert = parseBankAlert(rawText);
+  const info = resolveMerchant(alert.payee ?? alert.cleaned);
+  // known brands win (ZOMATO → Zomato ✓ logo); otherwise the payee's name
+  const merchant =
+    info.category === "Other" && alert.payee ? alert.payee : info.name;
+  const displayText = [
+    `₹${amount} paid${alert.payee ? ` to ${alert.payee}` : ""}`,
+    alert.source ? `via ${alert.source}` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   const expense: Expense = {
     id: uid("e"),
     creatorId: creator.id,
-    merchant: info.name,
-    rawText,
+    merchant,
+    rawText: alert.payee || alert.source ? displayText : alert.cleaned,
     merchantDomain: info.domain,
     category: info.category,
     amount,
     date: date.toISOString(),
-    aiDescription: generateDescription(info.name, info.category, amount, date),
+    aiDescription: generateDescription(merchant, info.category, amount, date),
     // auto-publish preference decides whether review is needed
     status: creator.preferences.autoPublish ? "published" : "draft",
     source: "auto",
   };
   await saveExpense(expense);
 
-  return NextResponse.json({ ok: true, id: expense.id, merchant: info.name, status: expense.status });
+  return NextResponse.json({ ok: true, id: expense.id, merchant, status: expense.status });
 }

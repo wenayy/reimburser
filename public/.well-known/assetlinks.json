@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "in.reimburser.capture",
+      "sha256_cert_fingerprints": [
+        "38:98:91:FE:B5:F5:5F:62:DD:20:17:7E:3E:AC:B2:53:E1:EE:24:89:71:8A:01:25:57:1D:95:6C:1B:4D:44:B8"
+      ]
+    }
+  }
+]
