@@ -49,7 +49,7 @@ export default async function Landing() {
             </h1>
             <p className="mx-auto lg:mx-0 mt-5 max-w-lg text-lg text-zinc-500 leading-relaxed">
               Your daily expenses become a beautiful public page. Supporters cover them directly
-              over UPI, PayPal, Throne, Wise, gift cards or crypto.
+              over UPI, PayPal, Throne, Wise, or gift cards.
             </p>
             <div className="mt-8 flex items-center justify-center lg:justify-start gap-3">
               <Link
@@ -160,7 +160,11 @@ export default async function Landing() {
             Help &amp; feedback
           </Link>
           <span className="mx-2 text-zinc-300">·</span>
+          <Link href="/about" className="hover:text-zinc-700 transition-colors">About</Link>
+          <span className="mx-2 text-zinc-300">·</span>
           <Link href="/terms" className="hover:text-zinc-700 transition-colors">Terms</Link>
+          <span className="mx-2 text-zinc-300">·</span>
+          <Link href="/pricing" className="hover:text-zinc-700 transition-colors">Pricing</Link>
           <span className="mx-2 text-zinc-300">·</span>
           <Link href="/privacy" className="hover:text-zinc-700 transition-colors">Privacy</Link>
           <span className="mx-2 text-zinc-300">·</span>
@@ -178,7 +182,7 @@ const FEATURES = [
   {
     icon: <Wallet size={18} className="text-indigo-500" />,
     title: "Zero fees",
-    body: "Money goes straight to you — UPI, PayPal, Wise, gift cards, Throne, crypto.",
+    body: "Money goes straight to you — UPI, PayPal, Wise, gift cards, Throne, bank transfer.",
   },
   {
     icon: <BadgeCheck size={18} className="text-indigo-500" />,
@@ -208,7 +212,7 @@ const FEATURES = [
   {
     icon: <Globe size={18} className="text-indigo-500" />,
     title: "Works worldwide",
-    body: "UPI at home; PayPal, Wise, gift cards, or crypto from anywhere.",
+    body: "UPI at home; PayPal, Wise, or gift cards from anywhere.",
   },
   // {
   //   icon: <ArrowRight size={18} className="text-indigo-500" />,
@@ -252,7 +256,7 @@ const CREATOR_FAQS = [
   },
   {
     q: "How do supporters outside India pay me?",
-    a: "Easily. PayPal and Wise work from most countries. Anyone with an international card can buy an Amazon.in eGift card and email it to you — or paste the gift card code right into the payment flow. Throne wishlists and crypto work from anywhere.",
+    a: "Easily. PayPal and Wise work from most countries. Anyone with an international card can buy an Amazon.in eGift card and email it to you — or paste the gift card code right into the payment flow. Throne wishlists work from anywhere too.",
   },
   {
     q: "Can I install Reimburser as an app on my phone?",

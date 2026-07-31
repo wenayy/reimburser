@@ -345,7 +345,7 @@ export function ReimburseModal({
                 </a>
               )}
 
-              {(method.type === "wise" || method.type === "crypto" || method.type === "bank" ||
+              {(method.type === "wise" || method.type === "bank" ||
                 (method.type === "amazon_gc" && !giftCodeOnly)) && (
                 <button
                   onClick={() => copy(method.value)}
@@ -356,12 +356,6 @@ export function ReimburseModal({
                 </button>
               )}
 
-              {method.type === "crypto" && method.details?.network && (
-                <p className="mx-auto w-fit rounded-lg bg-amber-50 border border-amber-200/70 px-3 py-1.5 text-xs font-medium text-amber-800">
-                  ⚠ Send {method.details.coin ?? "crypto"} on <strong>{method.details.network}</strong> only
-                  — wrong-network transfers can&apos;t be recovered.
-                </p>
-              )}
               <p className="text-xs text-zinc-500 leading-relaxed">
                 {giftCodeOnly
                   ? "Buy an Amazon.in eGift Card (amazon.in/gift-cards) with any international card, email it to yourself, then paste the claim code below."
@@ -503,7 +497,7 @@ export function ReimburseModal({
               {denyReason === "rate_limit" &&
                 "That was a few submissions in a row, so we've paused new ones for a little while. Nothing extra was recorded — please try again later."}
               {denyReason === "too_many_pending" &&
-                `Your earlier support is still waiting for ${creator.displayName.split(" ")[0]}'s verification. Once it's confirmed, you can send more — thanks for your patience.`}
+                `Your earlier support is still waiting for ${creator.displayName.split(" ")[0]}'s verification. Once it's confirmed, you can send more — thanks for your patience. If they've just confirmed it, refresh this page to see the update.`}
               {denyReason === "queue_full" &&
                 "This expense has several payments awaiting the creator's review. Check back a little later."}
               {denyReason === "proof_required" &&
@@ -514,10 +508,10 @@ export function ReimburseModal({
                 "This contribution couldn't be recorded — the expense may have changed. Refresh the page and try again."}
             </p>
             <button
-              onClick={onClose}
+              onClick={denyReason === "too_many_pending" ? () => window.location.reload() : onClose}
               className="mt-2 rounded-xl bg-zinc-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors"
             >
-              Close
+              {denyReason === "too_many_pending" ? "Refresh" : "Close"}
             </button>
             <p className="text-xs text-zinc-400">
               Need a hand?{" "}

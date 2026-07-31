@@ -31,7 +31,11 @@ export function LegalPage({
           {children}
         </div>
         <footer className="mt-14 border-t border-zinc-200/70 pt-6 text-xs text-zinc-400">
+          <Link href="/about" className="hover:text-zinc-700">About</Link>
+          <span className="mx-2">·</span>
           <Link href="/terms" className="hover:text-zinc-700">Terms</Link>
+          <span className="mx-2">·</span>
+          <Link href="/pricing" className="hover:text-zinc-700">Pricing</Link>
           <span className="mx-2">·</span>
           <Link href="/privacy" className="hover:text-zinc-700">Privacy</Link>
           <span className="mx-2">·</span>

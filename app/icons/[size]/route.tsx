@@ -1,4 +1,4 @@
-import { ImageResponse } from "next/og";
+eimport { ImageResponse } from "next/og";
 
 // App icons rendered from the real logo mark (components/Logo.tsx), frozen at
 // its resting animation state — same artwork on the site and the home screen.

@@ -108,6 +108,30 @@ export async function saveExpense(e: Expense): Promise<void> {
       SET status = excluded.status, date = excluded.date, data = excluded.data`;
 }
 
+/** Guards against double-capture: one real payment can raise TWO alerts (e.g.
+ *  the UPI/wallet app AND the bank both notify). If an auto expense with a
+ *  near-identical amount already landed for this creator within `windowMinutes`,
+ *  we treat the new alert as the same transaction. */
+export async function findRecentAutoDuplicate(
+  creatorId: string,
+  amount: number,
+  at: Date,
+  windowMinutes = 20
+): Promise<Expense | null> {
+  const since = new Date(at.getTime() - windowMinutes * 60_000).toISOString();
+  const until = new Date(at.getTime() + windowMinutes * 60_000).toISOString();
+  const rows = await sql()`
+    SELECT data FROM expenses
+    WHERE creator_id = ${creatorId}
+      AND date >= ${since} AND date <= ${until}`;
+  for (const r of rows) {
+    const e = r.data as Expense;
+    // same real payment reported twice → amounts match within a rupee (rounding)
+    if (e.source === "auto" && Math.abs(e.amount - amount) < 1) return e;
+  }
+  return null;
+}
+
 export async function updateOwnedExpense(
   id: string,
   creatorId: string,

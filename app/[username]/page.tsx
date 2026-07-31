@@ -11,7 +11,8 @@ import { SharePageButton } from "@/components/SharePageButton";
 import { Avatar } from "@/components/Avatar";
 import { Logo } from "@/components/Logo";
 import {
-  COVERED_PUBLIC_TTL_DAYS, PAYMENT_META, pendingAllowance, UPI_TRUST_THRESHOLD,
+  AUTO_PUBLIC_TTL_DAYS, COVERED_PUBLIC_TTL_DAYS, PAYMENT_META, pendingAllowance,
+  UPI_TRUST_THRESHOLD,
 } from "@/lib/payments";
 
 export const dynamic = "force-dynamic";
@@ -57,7 +58,8 @@ export default async function PublicPage({
   // payments with this creator) — no exceptions, even when UPI is the only
   // method (the dashboard warns the creator). submitReimbursement enforces
   // the same rule.
-  let enabledMethods = creator.paymentMethods.filter((m) => m.enabled);
+  // filter to methods we still offer (drops any legacy/removed types)
+  let enabledMethods = creator.paymentMethods.filter((m) => m.enabled && m.type in PAYMENT_META);
   const protectUpi = creator.preferences.protectUpi ?? true;
   if (protectUpi) {
     const verifiedCount = await countVerifiedFromSender(creator.id, ipHash);
@@ -65,19 +67,27 @@ export default async function PublicPage({
       enabledMethods = enabledMethods.filter((m) => m.type !== "upi");
   }
 
-  // fully covered expenses retire from the public list once support has gone
-  // quiet for a few days — the page stays short. Stats above still count them,
-  // and the creator's dashboard always shows everything.
-  const staleMs = COVERED_PUBLIC_TTL_DAYS * 86_400_000;
+  // Keep the public page a fresh, uncluttered daily log — the dashboard always
+  // keeps everything; only public visibility expires:
+  //   • fully covered expenses retire a few quiet days after their last support
+  //   • auto-captured routine spends retire a couple of days after the spend
+  //     (unless support is still active on them)
+  //   • manually-added expenses stay until the creator hides them
+  const coveredStaleMs = COVERED_PUBLIC_TTL_DAYS * 86_400_000;
+  const autoStaleMs = AUTO_PUBLIC_TTL_DAYS * 86_400_000;
   const displayExpenses = expenses.filter((e) => {
     if (e.amount <= 0) return true;
-    const vs = verified.filter((r) => r.expenseId === e.id);
-    const total = vs.reduce((s, r) => s + r.amount, 0);
-    if (total < e.amount) return true;
+    const support = reimbursements.filter((r) => r.expenseId === e.id && r.status !== "rejected");
+    const coveredTotal = support
+      .filter((r) => r.status === "verified")
+      .reduce((s, r) => s + r.amount, 0);
     const lastActivity = Math.max(
-      ...vs.map((r) => Date.parse(r.resolvedAt ?? r.createdAt))
+      Date.parse(e.date),
+      ...support.map((r) => Date.parse(r.resolvedAt ?? r.createdAt))
     );
-    return Date.now() - lastActivity < staleMs;
+    if (coveredTotal >= e.amount) return Date.now() - lastActivity < coveredStaleMs;
+    if (e.source === "auto") return Date.now() - lastActivity < autoStaleMs;
+    return true;
   });
 
   // strip everything client components don't render — these props end up in

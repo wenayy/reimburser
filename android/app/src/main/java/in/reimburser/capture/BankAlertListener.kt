@@ -11,17 +11,23 @@ class BankAlertListener : NotificationListenerService() {
 
     private val TAG = "ReimburserListener"
 
-    // packages worth listening to: SMS apps (bank SMS arrive as notifications)
-    // and the big UPI/bank apps. Kept broad for dev; tighten before release.
+    // Sources of transaction alerts. In India most banks and payment apps
+    // (slice, Amazon Pay, etc.) alert via SMS, so the default messaging apps are
+    // the primary channel; UPI/bank apps that push their own notifications are
+    // also watched. Non-transaction notifications are discarded on-device by
+    // TransactionParser and never leave the phone.
     private val WATCHED_PREFIXES = listOf(
         "com.google.android.apps.messaging", // Google Messages (SMS)
         "com.samsung.android.messaging",     // Samsung Messages (SMS)
         "com.google.android.apps.nbu.paisa", // Google Pay
         "com.phonepe.app",
-        "net.one97.paytm",
+        "net.one97.paytm",                   // Paytm
         "in.org.npci.upiapp",                // BHIM
+        "com.dreamplug.androidapp",          // CRED
+        "com.mobikwik_new",                  // MobiKwik
+        "in.amazon.mShop.android.shopping",  // Amazon Pay (inside Amazon app)
         "com.sbi.", "com.icicibank.", "com.hdfc", "com.axis.", "com.kotak",
-        "com.csam.icici", "com.msf.kbank",
+        "com.csam.icici", "com.msf.kbank", "com.bankofbaroda", "com.canarabank",
     )
 
     // small in-memory dedupe: identical alert text within a short window is

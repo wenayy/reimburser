@@ -4,7 +4,6 @@ export type PaymentMethodType =
   | "wise"
   | "amazon_gc"
   | "throne"
-  | "crypto"
   | "bank";
 
 export interface PaymentMethod {

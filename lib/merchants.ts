@@ -117,6 +117,9 @@ const KNOWN_MERCHANTS: { pattern: RegExp; info: MerchantInfo }[] = [
   // education
   { pattern: /udemy/i, info: { name: "Udemy", domain: "udemy.com", category: "Education" } },
   { pattern: /coursera/i, info: { name: "Coursera", domain: "coursera.org", category: "Education" } },
+  // credit-card bill payments
+  { pattern: /sbi ?cards?|sbicard/i, info: { name: "SBI Card", domain: "sbicard.com", category: "Bills" } },
+  { pattern: /hdfc ?card|onecard|axis ?card|icici ?card|amex/i, info: { name: "Credit Card Bill", category: "Bills" } },
 
   // ---- generic everyday items (no logo — category emoji tile) ----
   { pattern: /\bcig\w*|marlboro|gold ?flake|classic ?mild|four ?square|\bbidi\b|\bpaan\b/i, info: { name: "Cigarettes", category: "Smokes" } },
@@ -198,5 +201,8 @@ export const CATEGORY_EMOJI: Record<string, string> = {
   Dessert: "🍦",
   Fashion: "👜",
   Services: "🧺",
+  Transfer: "🤝",
+  Shop: "🏪",
+  Bills: "🧾",
   Other: "💳",
 };

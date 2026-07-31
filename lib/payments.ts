@@ -36,12 +36,6 @@ export const PAYMENT_META: Record<
     instructions:
       "Opens the creator's Throne wishlist — buy them a gift with your local payment method. Throne keeps their address private.",
   },
-  crypto: {
-    label: "Crypto",
-    emoji: "🪙",
-    international: true,
-    instructions: "Send stablecoins (USDC/USDT) to this address. Double-check the network before sending.",
-  },
   bank: {
     label: "Bank Transfer",
     emoji: "🏦",
@@ -71,11 +65,6 @@ export const PAYMENT_FIELDS: Record<PaymentMethodType, PaymentField[]> = {
     },
   ],
   throne: [{ key: "link", label: "Throne wishlist link", placeholder: "e.g. throne.com/riya" }],
-  crypto: [
-    { key: "address", label: "Wallet address", placeholder: "e.g. 0x1a2b…9f0c" },
-    { key: "network", label: "Network / chain", placeholder: "e.g. Polygon, Ethereum, Solana" },
-    { key: "coin", label: "Coin (optional)", placeholder: "e.g. USDC", optional: true },
-  ],
   bank: [
     { key: "account", label: "Account number", placeholder: "e.g. 50100234567890" },
     { key: "ifsc", label: "IFSC / SWIFT code", placeholder: "e.g. HDFC0001234" },
@@ -106,12 +95,6 @@ export function composeMethod(
         value: clean.email ?? "Code only — shared in the payment flow",
         details: clean,
       };
-    case "crypto":
-      return {
-        label: clean.coin ? `${clean.coin} (${clean.network})` : `Crypto (${clean.network})`,
-        value: clean.address,
-        details: clean,
-      };
     case "bank":
       return {
         label: "Bank Transfer",
@@ -129,45 +112,6 @@ export function composeMethod(
  *  convenience, not a requirement. */
 export const GIFT_CARD_EMAIL_HINT =
   "Don't want to share your email? Leave it blank — supporters will paste their gift card's claim code instead, and you redeem it yourself on amazon.in.";
-
-/** Shown wherever a creator enters a wallet address — supporters send to
- *  exactly what's published, and crypto transfers can't be undone. */
-export const CRYPTO_ADDRESS_DISCLAIMER =
-  "Double-check every character of your address and network before saving. Crypto transfers are irreversible — funds sent to a wrong address are gone forever. Supporters send to exactly what you enter here, so its accuracy is your responsibility.";
-
-const ADDRESS_PATTERNS: { chain: RegExp; shape: RegExp; expected: string }[] = [
-  {
-    chain: /ethereum|eth\b|polygon|matic|arbitrum|optimism|base|bsc|binance|avalanche|avax|evm|erc-?20/i,
-    shape: /^0x[a-fA-F0-9]{40}$/,
-    expected: "an EVM address (0x followed by 40 hex characters)",
-  },
-  {
-    chain: /solana|sol\b|spl/i,
-    shape: /^[1-9A-HJ-NP-Za-km-z]{32,44}$/,
-    expected: "a Solana address (32–44 base58 characters, no 0x)",
-  },
-  {
-    chain: /tron|trc-?20/i,
-    shape: /^T[1-9A-HJ-NP-Za-km-z]{33}$/,
-    expected: "a Tron address (starts with T, 34 characters)",
-  },
-  {
-    chain: /bitcoin|btc\b/i,
-    shape: /^(bc1[a-z0-9]{25,62}|[13][1-9A-HJ-NP-Za-km-z]{25,34})$/,
-    expected: "a Bitcoin address (starts with bc1, 1 or 3)",
-  },
-];
-
-/** Soft check that a wallet address matches the shape of the named network.
- *  Returns a warning string on mismatch, null when fine or the chain is unknown. */
-export function cryptoAddressWarning(address: string, network: string): string | null {
-  const addr = address.trim();
-  const net = network.trim();
-  if (!addr || !net) return null;
-  const spec = ADDRESS_PATTERNS.find((p) => p.chain.test(net));
-  if (!spec || spec.shape.test(addr)) return null;
-  return `This doesn't look like ${spec.expected}. Double-check it — funds sent to a wrong ${net} address can't be recovered.`;
-}
 
 /** Soft check that a pasted code matches the shape of an Amazon.in gift card
  *  claim code: 14–16 letters/digits, usually grouped 4-6-4 with dashes.
@@ -207,6 +151,11 @@ export const PENDING_EXPIRY_DAYS = 7;
 /** Fully covered expenses leave the public list after this many quiet days
  *  (no new verified support) — keeps the page short; the dashboard keeps all. */
 export const COVERED_PUBLIC_TTL_DAYS = 3;
+
+/** Auto-captured routine spends leave the public list this many days after the
+ *  spend (or its last support) — the page stays a fresh daily log rather than
+ *  an endless pile. The dashboard always keeps everything. */
+export const AUTO_PUBLIC_TTL_DAYS = 2;
 
 /** Anti-spam floor: above ₹100 remaining, contributions must be at least 25%
  *  of what's left; at ₹100 or below the expense can only be covered in full. */

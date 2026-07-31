@@ -29,6 +29,15 @@ export default function HelpPage() {
         <div className="mt-8">
           <FeedbackForm />
         </div>
+        <p className="mt-8 text-center text-sm text-zinc-500">
+          Prefer email? Reach us any time at{" "}
+          <a
+            href="mailto:help@reimburser.in"
+            className="font-medium text-indigo-600 hover:text-indigo-800"
+          >
+            help@reimburser.in
+          </a>
+        </p>
       </div>
     </div>
   );

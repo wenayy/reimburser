@@ -190,13 +190,13 @@ function Row({ r, expense }: { r: Reimbursement; expense?: Expense }) {
       <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
         <div className="flex flex-1 items-start gap-3 sm:gap-4 min-w-0">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-lg shrink-0">
-          {PAYMENT_META[r.methodType].emoji}
+          {PAYMENT_META[r.methodType]?.emoji ?? "💳"}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-medium text-zinc-900">{r.supporterName}</span>
             <span className="text-sm text-zinc-400">
-              → {expense?.merchant ?? "deleted expense"} · via {PAYMENT_META[r.methodType].label}
+              → {expense?.merchant ?? "deleted expense"} · via {PAYMENT_META[r.methodType]?.label ?? r.methodType}
             </span>
             <StatusBadge status={r.status} />
             {r.autoExpired && (

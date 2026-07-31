@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCreatorByDeviceKey, getCreatorByMobileToken, saveExpense, uid } from "@/lib/store";
-import { resolveMerchant } from "@/lib/merchants";
+import { getCreatorByDeviceKey, getCreatorByMobileToken, saveExpense, findRecentAutoDuplicate, uid } from "@/lib/store";
 import { parseBankAlert } from "@/lib/bank-alert";
 import { generateDescription } from "@/lib/ai";
 import { Expense } from "@/lib/types";
@@ -41,34 +40,49 @@ export async function POST(req: Request) {
   const parsedDate = body.date ? new Date(String(body.date)) : new Date();
   const date = Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
 
-  // clean the alert into human-readable form: payee + source, no refs/noise
-  const alert = parseBankAlert(rawText);
-  const info = resolveMerchant(alert.payee ?? alert.cleaned);
-  // known brands win (ZOMATO → Zomato ✓ logo); otherwise the payee's name
-  const merchant =
-    info.category === "Other" && alert.payee ? alert.payee : info.name;
-  const displayText = [
-    `₹${amount} paid${alert.payee ? ` to ${alert.payee}` : ""}`,
-    alert.source ? `via ${alert.source}` : null,
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  // one payment can raise two alerts (the UPI/wallet app AND the bank both
+  // notify) — if we already captured this amount moments ago, don't duplicate it
+  const dup = await findRecentAutoDuplicate(creator.id, amount, date);
+  if (dup) {
+    // same payment, second alert. If the one we kept is the generic "Payment"
+    // fallback but this alert resolved a real merchant, upgrade it in place —
+    // so the result is the same regardless of which alert arrived first.
+    const better = parseBankAlert(rawText, amount);
+    if (dup.merchant === "Payment" && better.merchant !== "Payment") {
+      dup.merchant = better.merchant;
+      dup.category = better.category;
+      dup.merchantDomain = better.merchantDomain;
+      dup.rawText = better.rawText;
+      dup.aiDescription = generateDescription(better.merchant, better.category, amount, date);
+      await saveExpense(dup);
+    }
+    return NextResponse.json({ ok: true, id: dup.id, merchant: dup.merchant, status: dup.status, deduped: true });
+  }
+
+  // clean the alert: resolve the recipient to a brand / shop / friend, never a
+  // raw UPI id, and produce a readable line — all in one place
+  const alert = parseBankAlert(rawText, amount);
 
   const expense: Expense = {
     id: uid("e"),
     creatorId: creator.id,
-    merchant,
-    rawText: alert.payee || alert.source ? displayText : alert.cleaned,
-    merchantDomain: info.domain,
-    category: info.category,
+    merchant: alert.merchant,
+    rawText: alert.rawText,
+    merchantDomain: alert.merchantDomain,
+    category: alert.category,
     amount,
     date: date.toISOString(),
-    aiDescription: generateDescription(merchant, info.category, amount, date),
+    aiDescription: generateDescription(alert.merchant, alert.category, amount, date),
     // auto-publish preference decides whether review is needed
     status: creator.preferences.autoPublish ? "published" : "draft",
     source: "auto",
   };
   await saveExpense(expense);
 
-  return NextResponse.json({ ok: true, id: expense.id, merchant, status: expense.status });
+  return NextResponse.json({
+    ok: true,
+    id: expense.id,
+    merchant: alert.merchant,
+    status: expense.status,
+  });
 }

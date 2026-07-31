@@ -1,17 +1,14 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { Plus, Trash2, Check, ExternalLink, Link2, ImagePlus } from "lucide-react";
+import { Plus, Trash2, Check, ExternalLink, Link2, ImagePlus, ShieldCheck } from "lucide-react";
 import { Creator, PaymentMethodType } from "@/lib/types";
 import { Card } from "@/components/ui";
 import { Avatar } from "@/components/Avatar";
 import { HelpCard } from "@/components/dashboard/HelpCard";
 import { SITE_URL } from "@/lib/site";
 import { InstallAppCard } from "@/components/dashboard/InstallAppCard";
-import {
-  CRYPTO_ADDRESS_DISCLAIMER, cryptoAddressWarning, GIFT_CARD_EMAIL_HINT,
-  PAYMENT_FIELDS, PAYMENT_META,
-} from "@/lib/payments";
+import { GIFT_CARD_EMAIL_HINT, PAYMENT_FIELDS, PAYMENT_META } from "@/lib/payments";
 import {
   addPaymentMethod, clearBlockedIps, deletePaymentMethod, removeProfilePhoto,
   setPreference, togglePaymentMethod, updateProfile, updateUsername,
@@ -118,7 +115,7 @@ export function SettingsPanel({
         </p>
 
         <div className="mt-4 space-y-2">
-          {creator.paymentMethods.map((m) => (
+          {creator.paymentMethods.filter((m) => m.type in PAYMENT_META).map((m) => (
             <div
               key={m.id}
               className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${
@@ -127,11 +124,16 @@ export function SettingsPanel({
             >
               <span className="text-xl">{PAYMENT_META[m.type].emoji}</span>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-zinc-900">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-zinc-900">
                   {m.label}
                   {PAYMENT_META[m.type].international && (
-                    <span className="ml-2 text-[10px] font-medium uppercase tracking-wide text-emerald-600">
+                    <span className="text-[10px] font-medium uppercase tracking-wide text-emerald-600">
                       works internationally
+                    </span>
+                  )}
+                  {m.type === "upi" && (creator.preferences.protectUpi ?? true) && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
+                      <ShieldCheck size={11} /> Protected
                     </span>
                   )}
                 </div>
@@ -291,9 +293,6 @@ function AddMethodForm() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [pending, startTransition] = useTransition();
 
-  const warning =
-    type === "crypto" ? cryptoAddressWarning(values.address ?? "", values.network ?? "") : null;
-
   return (
     <form
       action={(fd) =>
@@ -308,7 +307,7 @@ function AddMethodForm() {
         <h3 className="text-sm font-semibold text-zinc-900">＋ Add another payment method</h3>
         <p className="mt-0.5 text-xs text-zinc-400 leading-relaxed">
           Pick a type from the list below — UPI, PayPal, Wise, Amazon.in gift card, Throne
-          wishlist, crypto, or bank transfer. The more ways you offer, the easier it is for
+          wishlist, or bank transfer. The more ways you offer, the easier it is for
           supporters anywhere in the world to pay you.
         </p>
       </div>
@@ -348,18 +347,6 @@ function AddMethodForm() {
         <p className="rounded-lg bg-indigo-50/60 border border-indigo-100 px-3 py-2 text-xs leading-relaxed text-indigo-900/80">
           {GIFT_CARD_EMAIL_HINT}
         </p>
-      )}
-      {type === "crypto" && (
-        <div className="space-y-2">
-          {warning && (
-            <p className="rounded-lg bg-amber-50 border border-amber-200/70 px-3 py-2 text-xs font-medium text-amber-800">
-              ⚠ {warning}
-            </p>
-          )}
-          <p className="rounded-lg bg-amber-50 border border-amber-200/70 px-3 py-2 text-xs leading-relaxed text-amber-800">
-            ⚠ {CRYPTO_ADDRESS_DISCLAIMER}
-          </p>
-        </div>
       )}
       <div className="flex justify-end">
         <button

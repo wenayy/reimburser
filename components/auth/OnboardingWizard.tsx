@@ -4,8 +4,7 @@ import { useActionState, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, ImagePlus, X } from "lucide-react";
 import { AuthState, completeOnboarding } from "@/app/auth/actions";
 import {
-  composeMethod, CRYPTO_ADDRESS_DISCLAIMER, cryptoAddressWarning, GIFT_CARD_EMAIL_HINT,
-  PAYMENT_FIELDS, PAYMENT_META,
+  composeMethod, GIFT_CARD_EMAIL_HINT, PAYMENT_FIELDS, PAYMENT_META,
 } from "@/lib/payments";
 import { PaymentMethodType } from "@/lib/types";
 
@@ -240,26 +239,16 @@ export function OnboardingWizard({
                 />
               </div>
             ))}
-            {pmType === "crypto" &&
-              (() => {
-                const w = cryptoAddressWarning(
-                  pmValues.crypto?.address ?? "",
-                  pmValues.crypto?.network ?? ""
-                );
-                return w ? (
-                  <p className="rounded-lg bg-amber-50 border border-amber-200/70 px-3 py-2 text-xs font-medium text-amber-800">
-                    ⚠ {w}
-                  </p>
-                ) : null;
-              })()}
-            {pmType === "crypto" ? (
-              <p className="rounded-lg bg-amber-50 border border-amber-200/70 px-3 py-2 text-xs leading-relaxed text-amber-800">
-                ⚠ {CRYPTO_ADDRESS_DISCLAIMER}
-              </p>
-            ) : pmType === "amazon_gc" ? (
+            {pmType === "amazon_gc" ? (
               <p className="rounded-lg bg-indigo-50/60 border border-indigo-100 px-3 py-2 text-xs leading-relaxed text-indigo-900/80">
                 This one&apos;s already included on your page — supporters paste their gift
                 card&apos;s claim code and you redeem it yourself. {GIFT_CARD_EMAIL_HINT}
+              </p>
+            ) : pmType === "upi" ? (
+              <p className="rounded-lg bg-emerald-50 border border-emerald-200/70 px-3 py-2 text-xs leading-relaxed text-emerald-800">
+                🔒 Your UPI ID gets special protection — it stays hidden from strangers and is
+                shown only to supporters whose payments you&apos;ve verified. New supporters can
+                still pay you right away via the gift card option, included by default.
               </p>
             ) : (
               <p className="text-xs text-zinc-400 leading-relaxed">

@@ -6,10 +6,22 @@ export const metadata: Metadata = { title: "Contact — Reimburser" };
 
 export default function Contact() {
   return (
-    <LegalPage title="Contact Us" updated="19 July 2026">
+    <LegalPage title="Contact Us" updated="26 July 2026">
       <p>
-        Reimburser is operated by Vinay Joshi (sole proprietor), India. We read and answer
-        everything — most messages get a reply within 24 hours.
+        Reimburser is owned and operated by <strong>Vinay Joshi</strong> (sole proprietor,
+        trading as Reimburser). We read and answer everything — most messages get a reply within
+        24 hours.
+      </p>
+
+      <h2>Registered address</h2>
+      <p>
+        Vinay Joshi (trading as Reimburser)
+        <br />
+        Geti Gada, Jhulaghat
+        <br />
+        Pithoragarh, Uttarakhand
+        <br />
+        India
       </p>
 
       <h2>Support &amp; feedback</h2>
@@ -24,10 +36,10 @@ export default function Contact() {
       <h2>Email</h2>
       <p>
         <a
-          href="mailto:vinaycjoshi310@gmail.com"
+          href="mailto:help@reimburser.in"
           className="font-medium text-indigo-600 hover:text-indigo-800"
         >
-          vinaycjoshi310@gmail.com
+          help@reimburser.in
         </a>{" "}
         — for support, privacy or account-deletion requests, partnership enquiries, and anything
         else.

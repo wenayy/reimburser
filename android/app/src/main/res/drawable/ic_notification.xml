@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Monochrome status-bar icon (system tints it): a filled receipt shape. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M6,2 L18,2 L18,20 L15.5,18.4 L13,20 L10.5,18.4 L8,20 L6,18.4 Z" />
+    <path
+        android:fillColor="#111111"
+        android:pathData="M9,6 h6 v1.6 h-6 Z M9,9.2 h6 v1.6 h-6 Z M9,12.4 h3.5 v1.6 h-3.5 Z" />
+</vector>

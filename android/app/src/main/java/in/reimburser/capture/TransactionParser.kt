@@ -14,16 +14,19 @@ object TransactionParser {
     )
 
     private val DEBIT_WORDS = listOf(
-        "debited", "spent", "paid", "sent", "purchase", "payment of", "txn of"
+        "debited", "spent", "paid", "sent", "purchase", "payment of", "txn of",
+        "dr. from", "dr from", "debit", "successfully paid", "using apay"
     )
 
-    // things that look like money alerts but must never become expenses
+    // things that look like money alerts but must never become expenses.
+    // NOTE: no "balance is" — real payment SMS often append "Updated Balance
+    // is …", and the debit-word requirement already filters pure enquiries.
     private val REJECT_WORDS = listOf(
-        "credited", "received", "refund", "reversed", "cashback",
-        "otp", "one time password", "will be", "is due", "due on",
+        "credited to your", "received", "refund", "reversed", "cashback",
+        "otp", "one time password", "is due", "due on",
         "requested", "collect request", "has requested", "declined",
-        "failed", "insufficient", "offer", "reward", "win ", "loan",
-        "emi due", "recharge with", "balance is"
+        "failed", "insufficient", "offer", "reward", "you won", "loan",
+        "emi due", "recharge with"
     )
 
     fun parse(text: String): ParsedTxn? {
@@ -36,7 +39,7 @@ object TransactionParser {
 
         val amountMatch = AMOUNT.find(t) ?: return null
         val amount = amountMatch.groupValues[1].replace(",", "").toDoubleOrNull() ?: return null
-        if (amount <= 0 || amount > 1_00_000) return null // sanity ceiling for auto-capture
+        if (amount <= 0 || amount > 5_00_000) return null // sanity ceiling for auto-capture
 
         // the server's merchant recognizer does the heavy lifting — send it the
         // raw text, trimmed to what it accepts
